@@ -1,0 +1,54 @@
+namespace base {
+
+    param eta_c_BESS := 0.98;
+
+    param eta_d_BESS := 0.98; 
+
+    param epsilon_BESS := 0.002;
+
+    param E_min_BESS := 0;
+
+    param E_max_BESS := 8;
+
+    param E_init := 3.5;
+
+    param p_c_min_BESS := 0;
+
+    param p_c_max_BESS := 3;
+
+    param p_d_min_BESS := 0;
+
+    param p_d_max_BESS := 3;
+
+    param delta_t := 1;
+
+
+
+    param q_HP_max := 5;
+
+    param rho_HP := 0.1;
+
+
+
+    param eta_c_TES := 0.98;
+
+    param eta_d_TES := 0.98; 
+
+    param epsilon_TES := 0.002;
+
+    param Q_min_TES := 2.25;
+
+    param Q_max_TES := 7.5;
+
+    param Q_init_TES := 5;
+
+    param q_c_min_TES := 0;
+
+    param q_c_max_TES := 1.5;
+
+    param q_d_min_TES := 0;
+
+    param q_d_max_TES := 1.5;
+
+
+}

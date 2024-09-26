@@ -1,0 +1,92 @@
+namespace base {
+    param c_ESS := 0.5;
+
+    param eta_c_ESS := 0.9;
+
+    param eta_d_ESS := 0.9; 
+
+    param epsilon_ESS := 0.002;
+
+    param E_min_ESS := 0;
+
+    param E_max_ESS := 8;
+
+    param E_init := 3.5;
+
+    param p_c_min_ESS := 0;
+
+    param p_c_max_ESS := 3;
+
+    param p_d_min_ESS := 0;
+
+    param p_d_max_ESS := 3;
+
+    param delta_t := 0.5;
+
+
+
+    param num_appliances := 1;
+
+    param N_a := 1 3;
+
+    param t_start := 1 4;
+
+    param t_stop := 1 10;
+
+    param p_app := 1 1;
+
+
+
+    param c_EV := 0.5;
+
+    param eta_c_EV := 0.9;
+
+    param eta_d_EV := 0.9; 
+
+    param epsilon_EV := 0.002;
+
+    param E_min_EV := 0;
+
+    param E_max_EV := 30;
+
+    param p_c_min_EV := 0;
+
+    param p_c_max_EV := 4;
+
+    param p_d_min_EV := 0;
+
+    param p_d_max_EV := 4;
+
+    param E_arr_EV := 12; 
+
+    param t_arr_EV := 20;
+
+    param t_dep_EV := 45;
+
+
+
+    param num_external_EV := 1;
+
+    param eta_c_EEV := 1 0.9;
+
+    param eta_d_EEV := 1 0.9; 
+
+    param epsilon_EEV := 1 0.002;
+
+    param alpha_EEV := 1 0.8;
+
+    param E_min_EEV := 1 0;
+
+    param E_max_EEV := 1 30;
+
+    param E_arr_EEV := 1 20;
+
+    param p_c_min_EEV := 1 0;
+
+    param p_c_max_EEV := 1 4;
+
+    param t_arr_EEV := 1 15;
+
+    param t_dep_EEV := 1 18;
+    
+}
