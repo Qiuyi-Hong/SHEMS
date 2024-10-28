@@ -56,7 +56,7 @@ model.q_TES_d_min = pyo.Param()
 model.q_TES_d_max = pyo.Param()
 model.V_TES = pyo.Param()
 model.rho_TES = pyo.Param()
-
+model.T_inlet = pyo.Param(mutable=True)
 
 # PV generation in kW
 model.p_pv = pyo.Param(model.T, mutable=True)
@@ -84,7 +84,6 @@ model.epsilon_TES = pyo.Var(model.T)
 # Thermal energy storage vars:
 model.Q_TES = pyo.Var(model.T)
 model.q_TES_d = pyo.Var(model.T)
-model.T_init = pyo.Var(model.T)
 
 
 # Electricity volume imported from the grid in kWh
@@ -227,7 +226,7 @@ def powerDischargeMaxTES(model, t):
 model.powerDischargeMaxTES = pyo.Constraint(model.T, rule=powerDischargeMaxTES)
 
 def TempTES(model, t):
-    return model.Q_TES[t] == (model.V_TES * model.rho_TES * model.c_TES * (model.T_TES[t] - model.T_init[t]))/3.6e6
+    return model.Q_TES[t] == (model.V_TES * model.rho_TES * model.c_TES * (model.T_TES[t] - model.T_inlet))/3.6e6
 
 model.TempTES = pyo.Constraint(model.T, rule=TempTES)
 

@@ -35,11 +35,11 @@ namespace base {
     param T_TES_init := 55;
 
 
-    param Q_TES_min := 2.25;
+    param Q_TES_min := 0;
 
-    param Q_TES_max := 7.5;
+    param Q_TES_max := 17.5;
 
-    param Q_TES_init := 3.5;
+    param Q_TES_init := 12;
 
     param q_TES_d_min := 0;
 
