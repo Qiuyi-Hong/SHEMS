@@ -34,27 +34,27 @@ model.q_HP_min = pyo.Param()
 
 # Comfort params:
 # For SH:
-model.m_in = pyo.Param()
+model.rho_in = pyo.Param()
+model.V_in = pyo.Param()
 model.c_in = pyo.Param()
 model.T_in_LB = pyo.Param()
 model.T_in_UB = pyo.Param()
 model.K_SH = pyo.Param()
 model.T_in_init = pyo.Param()
 # For DHW:
-model.m_TES = pyo.Param()
 model.c_TES = pyo.Param()
 model.T_TES_LB = pyo.Param()
 model.T_TES_UB = pyo.Param()
 model.K_TES = pyo.Param()
-model.T_TES_init = pyo.Param()
+model.T_TES_init = pyo.Param(mutable=True)
 
 # Thermal energy storage params:
 model.Q_TES_min = pyo.Param()
 model.Q_TES_max = pyo.Param()
-model.Q_TES_init = pyo.Param()
+model.Q_TES_init = pyo.Param(mutable=True)
 model.q_TES_d_min = pyo.Param()
 model.q_TES_d_max = pyo.Param()
-model.V_TES = pyo.Param()
+model.V_TES = pyo.Param(mutable=True)
 model.rho_TES = pyo.Param()
 model.T_inlet = pyo.Param(mutable=True)
 
@@ -136,9 +136,9 @@ model.SHDHWConstr = pyo.Constraint(model.T, rule=SHDHWConstr)
 # For SH:
 def TempSH(model, t):
     if t == 1:
-        return model.T_in[t] == model.T_in_init + ((model.q_SH[t] - model.epsilon_SH[t]) * model.delta_t) * 3.6e6 / (model.m_in * model.c_in)
+        return model.T_in[t] == model.T_in_init + ((model.q_SH[t] - model.epsilon_SH[t]) * model.delta_t) * 3.6e6 / (model.rho_in * model.V_in * model.c_in)
     else:
-        return model.T_in[t] == model.T_in[t-1] + ((model.q_SH[t] - model.epsilon_SH[t]) * model.delta_t) * 3.6e6 / (model.m_in * model.c_in)
+        return model.T_in[t] == model.T_in[t-1] + ((model.q_SH[t] - model.epsilon_SH[t]) * model.delta_t) * 3.6e6 / (model.rho_in * model.V_in * model.c_in)
 
 model.TempSH = pyo.Constraint(model.T, rule=TempSH)
 
@@ -165,9 +165,9 @@ model.TempEqvSH = pyo.Constraint(rule=TempEqvSH)
 # For DHW:
 def TempDHW(model, t):
     if t == 1:
-        return model.T_TES[t] == model.T_TES_init + ((model.q_DHW[t] - model.q_TES_d[t] - model.epsilon_TES[t]) * model.delta_t) * 3.6e6 / (model.m_TES * model.c_TES)
+        return model.T_TES[t] == model.T_TES_init + ((model.q_DHW[t] - model.q_TES_d[t] - model.epsilon_TES[t]) * model.delta_t) * 3.6e6 / (model.rho_TES * model.V_TES * model.c_TES)
     else:
-        return model.T_TES[t] == model.T_TES[t-1] + ((model.q_DHW[t] - model.q_TES_d[t] - model.epsilon_TES[t]) * model.delta_t) * 3.6e6 / (model.m_TES * model.c_TES)
+        return model.T_TES[t] == model.T_TES[t-1] + ((model.q_DHW[t] - model.q_TES_d[t] - model.epsilon_TES[t]) * model.delta_t) * 3.6e6 / (model.rho_TES * model.V_TES * model.c_TES)
 
 model.TempDHW = pyo.Constraint(model.T, rule=TempDHW)
 

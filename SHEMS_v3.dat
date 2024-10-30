@@ -10,7 +10,9 @@ namespace base {
     param q_HP_min := 0;
 
 
-    param m_in := 3946;
+    param rho_in := 1.2041;
+
+    param V_in := 3277;
 
     param c_in := 1000;
 
@@ -21,8 +23,6 @@ namespace base {
     param K_SH := 0.016;
 
     param T_in_init := 20;
-
-    param m_TES := 300;
 
     param c_TES := 4186;
 
