@@ -17,7 +17,7 @@ model.delta_t = pyo.Param()
 model.d_ele = pyo.Param(model.T, mutable=True)
 
 # Heat demand of the house in kW
-model.d_heat = pyo.Param(model.T, mutable=True)
+# model.d_heat = pyo.Param(model.T, mutable=True)
 
 # Electricity import price in p/kWh
 model.pi_import = pyo.Param(model.T, mutable=True, within=pyo.Reals)
@@ -64,6 +64,9 @@ model.p_pv = pyo.Param(model.T, mutable=True)
 ############################################################################
 ######################## Setting decision variables: ####################### 
 ############################################################################
+
+# Heat demand of the house in kW
+model.d_heat = pyo.Var(model.T, within=pyo.NonNegativeReals)
 
 # Air-to-water heat pump vars:
 model.T_TES = pyo.Var(model.T)
