@@ -55,8 +55,6 @@ model.T_TES_init = pyo.Param(mutable=True)
 model.Q_TES_min = pyo.Param()
 model.Q_TES_max = pyo.Param(mutable=True)
 model.Q_TES_init = pyo.Param(mutable=True)
-model.q_TES_d_min = pyo.Param()
-model.q_TES_d_max = pyo.Param()
 model.V_TES = pyo.Param(mutable=True)
 model.rho_TES = pyo.Param()
 model.T_inlet = pyo.Param(mutable=True)
@@ -90,10 +88,10 @@ model.Q_TES = pyo.Var(model.T)
 model.q_TES_d = pyo.Var(model.T)
 
 
-# Electricity volume imported from the grid in kWh
+# Electricity power imported from the grid in kW
 model.p_import = pyo.Var(model.T, within=pyo.NonNegativeReals)
 
-# Electricity volume exported to the grid in kWh
+# Electricity power exported to the grid in kW
 model.p_export = pyo.Var(model.T, within=pyo.NonNegativeReals)
 
 ############################################################################
@@ -140,9 +138,9 @@ model.SHDHWConstr = pyo.Constraint(model.T, rule=SHDHWConstr)
 # For SH:
 def TempSH(model, t):
     if t == 1:
-        return model.T_in[t] == model.T_in_init + (model.q_SH[t] * model.delta_t - model.d_SH[t] - model.epsilon_SH[t] * model.delta_t) * 3.6e6 / (model.rho_in * model.V_in * model.c_in)
+        return model.T_in[t] == model.T_in_init + ((model.q_SH[t] - model.d_SH[t] - model.epsilon_SH[t]) * model.delta_t) * 3.6e6 / (model.rho_in * model.V_in * model.c_in)
     else:
-        return model.T_in[t] == model.T_in[t-1] + (model.q_SH[t] * model.delta_t - model.d_SH[t] - model.epsilon_SH[t] * model.delta_t) * 3.6e6 / (model.rho_in * model.V_in * model.c_in)
+        return model.T_in[t] == model.T_in[t-1] + ((model.q_SH[t] - model.d_SH[t] - model.epsilon_SH[t]) * model.delta_t) * 3.6e6 / (model.rho_in * model.V_in * model.c_in)
 
 model.TempSH = pyo.Constraint(model.T, rule=TempSH)
 
@@ -161,17 +159,17 @@ def lossSH(model, t):
 
 model.lossSH = pyo.Constraint(model.T, rule=lossSH)
 
-def TempEqvSH(model):
-    return model.T_in[model.t_end] == model.T_in_init
+# def TempEqvSH(model):
+#     return model.T_in[model.t_end] == model.T_in_init
 
-model.TempEqvSH = pyo.Constraint(rule=TempEqvSH)
+# model.TempEqvSH = pyo.Constraint(rule=TempEqvSH)
 
 # For DHW:
 def TempDHW(model, t):
     if t == 1:
-        return model.T_TES[t] == model.T_TES_init + ((model.q_DHW[t] - model.q_TES_d[t] - model.epsilon_TES[t]) * model.delta_t) * 3.6e6 / (model.rho_TES * model.V_TES * model.c_TES)
+        return model.T_TES[t] == model.T_TES_init + ((model.q_DHW[t] - model.d_DHW[t] - model.epsilon_TES[t]) * model.delta_t) * 3.6e6 / (model.rho_TES * model.V_TES * model.c_TES)
     else:
-        return model.T_TES[t] == model.T_TES[t-1] + ((model.q_DHW[t] - model.q_TES_d[t] - model.epsilon_TES[t]) * model.delta_t) * 3.6e6 / (model.rho_TES * model.V_TES * model.c_TES)
+        return model.T_TES[t] == model.T_TES[t-1] + ((model.q_DHW[t] - model.d_DHW[t] - model.epsilon_TES[t]) * model.delta_t) * 3.6e6 / (model.rho_TES * model.V_TES * model.c_TES)
 
 model.TempDHW = pyo.Constraint(model.T, rule=TempDHW)
 
@@ -190,24 +188,24 @@ def lossDHW(model, t):
 
 model.lossDHW = pyo.Constraint(model.T, rule=lossDHW)
 
-def TempEqvDHW(model):
-    return model.T_TES[model.t_end] == model.T_TES_init
+# def TempEqvDHW(model):
+#     return model.T_TES[model.t_end] == model.T_TES_init
 
-model.TempEqvDHW = pyo.Constraint(rule=TempEqvDHW)
+# model.TempEqvDHW = pyo.Constraint(rule=TempEqvDHW)
       
 # Thermal energy storage constraints:
 def energyConstrTES(model, t):
     if t == 1:
-        return model.Q_TES[t] == model.Q_TES_init + model.q_DHW[t] * model.delta_t - model.q_TES_d[t] * model.delta_t - model.epsilon_TES[t] * model.delta_t
+        return model.Q_TES[t] == model.Q_TES_init + (model.q_DHW[t] - model.d_DHW[t] - model.epsilon_TES[t]) * model.delta_t
     else:
-        return model.Q_TES[t] == model.Q_TES[t-1] + model.q_DHW[t] * model.delta_t - model.q_TES_d[t] * model.delta_t - model.epsilon_TES[t] * model.delta_t
+        return model.Q_TES[t] == model.Q_TES[t-1] + (model.q_DHW[t] - model.d_DHW[t] - model.epsilon_TES[t]) * model.delta_t
     
 model.energyConstrTES = pyo.Constraint(model.T, rule=energyConstrTES)
 
-def energyTESBalance(model):
-    return model.Q_TES[model.t_end] == model.Q_TES_init
+# def energyTESBalance(model):
+#     return model.Q_TES[model.t_end] == model.Q_TES_init
 
-model.energyTESBalance = pyo.Constraint(rule=energyTESBalance)
+# model.energyTESBalance = pyo.Constraint(rule=energyTESBalance)
 
 def energyMinTES(model, t):
     return model.Q_TES_min <= model.Q_TES[t]
@@ -219,29 +217,29 @@ def energyMaxTES(model, t):
 
 model.energyMaxTES = pyo.Constraint(model.T, rule=energyMaxTES)
 
-def powerDischargeMinTES(model, t):
-    return model.q_TES_d_min <= model.q_TES_d[t]
-
-model.powerDischargeMinTES = pyo.Constraint(model.T, rule=powerDischargeMinTES)
-
-def powerDischargeMaxTES(model, t):
-    return model.q_TES_d[t] <= model.q_TES_d_max
-
-model.powerDischargeMaxTES = pyo.Constraint(model.T, rule=powerDischargeMaxTES)
-
 def TempTES(model, t):
     return model.Q_TES[t] == (model.V_TES * model.rho_TES * model.c_TES * (model.T_TES[t] - model.T_inlet))/3.6e6
 
 model.TempTES = pyo.Constraint(model.T, rule=TempTES)
 
-def DHWBalance(model, t):
-    return model.d_DHW[t] == model.q_TES_d[t] * model.delta_t
-
-model.DHWBalance = pyo.Constraint(model.T, rule=DHWBalance)
-
 # Power balance constraints:
+def powerImportMin(model, t):
+    return model.p_import[t] >= 0
+
+model.powerImportMin = pyo.Constraint(model.T, rule=powerImportMin)
+
+def powerExportMin(model, t):
+    return model.p_export[t] >= 0
+
+model.powerExportMin = pyo.Constraint(model.T, rule=powerExportMin)
+
+def powerExportMax(model, t):
+    return model.p_export[t] <= model.p_pv[t]
+
+model.powerExportMax = pyo.Constraint(model.T, rule=powerExportMax)
+
 def powerBalance(model, t):
-    return model.p_HP[t] * model.delta_t + model.d_ele[t] + model.p_export[t] == model.p_pv[t] * model.delta_t + model.p_import[t]
+    return model.p_HP[t] + model.d_ele[t] + model.p_export[t] == model.p_pv[t] + model.p_import[t]
 
 model.powerBalance = pyo.Constraint(model.T, rule=powerBalance)
 
@@ -252,7 +250,7 @@ model.powerBalance = pyo.Constraint(model.T, rule=powerBalance)
 def ObjectiveFuction(model):
     total = 0 
     for t in model.T:
-        total += model.pi_import[t] * model.p_import[t] * model.delta_t - model.pi_export[t] * model.p_export[t] * model.delta_t
+        total += (model.pi_import[t] * model.p_import[t] - model.pi_export[t] * model.p_export[t]) * model.delta_t
     return total
 
 model.obj = pyo.Objective(rule=ObjectiveFuction, sense=pyo.minimize)

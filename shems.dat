@@ -1,0 +1,38 @@
+namespace base {
+
+    param delta_t := 0.5;
+
+
+    param q_HP_max := 10;
+
+    param q_HP_min := 0;
+
+
+    param rho_in := 1.2041;
+
+    param V_in := 3277;
+
+    param c_in := 1000;
+
+    param T_in_LB := 19;
+
+    param T_in_UB := 23;
+
+    param K_SH := 0.016;
+
+    param T_in_init := 21;
+
+    param c_TES := 4186;
+
+    param T_TES_LB := 55;
+
+    param T_TES_UB := 65;
+
+    param K_TES := 0.02;
+
+
+    param Q_TES_min := 0;
+
+    param rho_TES := 1000;
+
+}

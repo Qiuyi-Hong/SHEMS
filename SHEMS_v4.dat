@@ -35,10 +35,6 @@ namespace base {
 
     param Q_TES_min := 0;
 
-    param q_TES_d_min := 0;
-
-    param q_TES_d_max := 20;
-
     param rho_TES := 1000;
 
 }
