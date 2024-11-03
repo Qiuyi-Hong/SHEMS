@@ -4,64 +4,64 @@ This file contains the code for modelling SHEMS.
 
 import pyomo.environ as pyo 
 
-def shems_model(t_end):
-    model = pyo.AbstractModel(name="SHEMS")
+def shems_model(inputs):
+    model = pyo.ConcreteModel(name="shems")
 
     ############################################################################
     ######################## Setting parameters: ###############################
     ############################################################################
-    model.T = pyo.RangeSet(1, t_end, 1)
-    model.delta_t = pyo.Param()
+    model.T = pyo.RangeSet(0, inputs["T"]-1, 1)
+    model.delta_t = pyo.Param(initialize=inputs["delta_t"])
 
     # Electricity demand of the house in kW
-    model.d_ele = pyo.Param(model.T, mutable=True)
+    model.d_ele = pyo.Param(model.T, initialize=inputs["d_ele"])
 
     # Space heating demand of the house in kW
-    model.d_SH = pyo.Param(model.T, mutable=True)
+    model.d_SH = pyo.Param(model.T, initialize=inputs["d_SH"])
 
     # DHW demand of the house in kW
-    model.d_DHW = pyo.Param(model.T, mutable=True)
+    model.d_DHW = pyo.Param(model.T, initialize=inputs["d_DHW"])
 
     # Electricity import price in p/kWh
-    model.pi_import = pyo.Param(model.T, mutable=True, within=pyo.Reals)
+    model.pi_import = pyo.Param(model.T, initialize=inputs["pi_import"])
 
     # Electricity export price in p/kWh
-    model.pi_export = pyo.Param(model.T, mutable=True, within=pyo.Reals)
+    model.pi_export = pyo.Param(model.T, initialize=inputs["pi_export"])
 
 
     # Air-to-water heat pump params:
-    model.T_out = pyo.Param(model.T, mutable=True)
-    model.COP = pyo.Param(model.T, mutable=True)
-    model.q_HP_max = pyo.Param()
-    model.q_HP_min = pyo.Param()
+    model.T_out = pyo.Param(model.T, initialize=inputs["T_out"])
+    model.COP = pyo.Param(model.T, initialize=inputs["COP"])
+    model.q_HP_max = pyo.Param(initialize=inputs["q_HP_max"])
+    model.q_HP_min = pyo.Param(initialize=inputs["q_HP_min"])
 
     # Comfort params:
     # For SH:
-    model.rho_in = pyo.Param()
-    model.V_in = pyo.Param()
-    model.c_in = pyo.Param()
-    model.T_in_LB = pyo.Param()
-    model.T_in_UB = pyo.Param()
-    model.K_SH = pyo.Param()
-    model.T_in_init = pyo.Param()
+    model.rho_in = pyo.Param(initialize=inputs["rho_in"])
+    model.V_in = pyo.Param(initialize=inputs["V_in"])
+    model.c_in = pyo.Param(initialize=inputs["c_in"])
+    model.T_in_LB = pyo.Param(initialize=inputs["T_in_LB"])
+    model.T_in_UB = pyo.Param(initialize=inputs["T_in_UB"])
+    model.K_SH = pyo.Param(initialize=inputs["K_SH"])
+    model.T_in_init = pyo.Param(initialize=inputs["T_in_init"])
     # For DHW:
-    model.c_TES = pyo.Param()
-    model.T_TES_LB = pyo.Param()
-    model.T_TES_UB = pyo.Param()
-    model.K_TES = pyo.Param()
-    model.T_TES_init = pyo.Param(mutable=True)
+    model.c_TES = pyo.Param(initialize=inputs["c_TES"])
+    model.T_TES_LB = pyo.Param(initialize=inputs["T_TES_LB"])
+    model.T_TES_UB = pyo.Param(initialize=inputs["T_TES_UB"])
+    model.K_TES = pyo.Param(initialize=inputs["K_TES"])
+    model.T_TES_init = pyo.Param(initialize=inputs["T_TES_init"])
 
     # Thermal energy storage params:
-    model.Q_TES_min = pyo.Param()
-    model.Q_TES_max = pyo.Param(mutable=True)
-    model.Q_TES_init = pyo.Param(mutable=True)
-    model.V_TES = pyo.Param(mutable=True)
-    model.rho_TES = pyo.Param()
-    model.T_inlet = pyo.Param(mutable=True)
-    model.T_TES_max = pyo.Param(mutable=True)
+    model.Q_TES_min = pyo.Param(initialize=inputs["Q_TES_min"])
+    model.Q_TES_max = pyo.Param(initialize=inputs["Q_TES_max"])
+    model.Q_TES_init = pyo.Param(initialize=inputs["Q_TES_init"])
+    model.V_TES = pyo.Param(initialize=inputs["V_TES"])
+    model.rho_TES = pyo.Param(initialize=inputs["rho_TES"])
+    model.T_inlet = pyo.Param(initialize=inputs["T_inlet"])
+    model.T_TES_max = pyo.Param(initialize=inputs["T_TES_max"])
 
     # PV generation in kW
-    model.p_pv = pyo.Param(model.T, mutable=True)
+    model.p_pv = pyo.Param(model.T, initialize=inputs["p_pv"])
 
     ############################################################################
     ######################## Setting decision variables: ####################### 
@@ -137,7 +137,7 @@ def shems_model(t_end):
     # Comfort constraints:
     # For SH:
     def TempSH(model, t):
-        if t == 1:
+        if t == 0:
             return model.T_in[t] == model.T_in_init + ((model.q_SH[t] - model.d_SH[t] - model.epsilon_SH[t]) * model.delta_t) * 3.6e6 / (model.rho_in * model.V_in * model.c_in)
         else:
             return model.T_in[t] == model.T_in[t-1] + ((model.q_SH[t] - model.d_SH[t] - model.epsilon_SH[t]) * model.delta_t) * 3.6e6 / (model.rho_in * model.V_in * model.c_in)
@@ -166,7 +166,7 @@ def shems_model(t_end):
 
     # For DHW:
     def TempDHW(model, t):
-        if t == 1:
+        if t == 0:
             return model.T_TES[t] == model.T_TES_init + ((model.q_DHW[t] - model.d_DHW[t] - model.epsilon_TES[t]) * model.delta_t) * 3.6e6 / (model.rho_TES * model.V_TES * model.c_TES)
         else:
             return model.T_TES[t] == model.T_TES[t-1] + ((model.q_DHW[t] - model.d_DHW[t] - model.epsilon_TES[t]) * model.delta_t) * 3.6e6 / (model.rho_TES * model.V_TES * model.c_TES)
@@ -195,7 +195,7 @@ def shems_model(t_end):
         
     # Thermal energy storage constraints:
     def energyConstrTES(model, t):
-        if t == 1:
+        if t == 0:
             return model.Q_TES[t] == model.Q_TES_init + (model.q_DHW[t] - model.d_DHW[t] - model.epsilon_TES[t]) * model.delta_t
         else:
             return model.Q_TES[t] == model.Q_TES[t-1] + (model.q_DHW[t] - model.d_DHW[t] - model.epsilon_TES[t]) * model.delta_t
